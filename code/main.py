@@ -24,6 +24,7 @@ def test_dataset(
     Perform various Double ML experiements on given dataset.
     To edit experiments, change the experiments array.
     Each entry is a dictionary that defines the configurations for the respective experiment.
+    See double_ml in double_ml.py for variable definitions.
 
     Note: Adapted from Alejandro Contreras.
 
@@ -177,10 +178,10 @@ def test_dataset(
     """
 
 def main():
-    # # Run DoubleML experiments on California Housing data
-    # print('Analyzing California Housing data...')
-    # X_train, X_test, T_train, T_test, y_train, y_test = preprocess_california_housing()
-    # test_dataset(X_train, X_test, T_train, T_test, y_train, y_test)
+    # Run DoubleML experiments on California Housing data
+    print('Analyzing California Housing data...')
+    X_train, X_test, T_train, T_test, y_train, y_test = preprocess_california_housing()
+    test_dataset(X_train, X_test, T_train, T_test, y_train, y_test)
 
     # Run experiments on Education data
     print('Analyzing Education data...')

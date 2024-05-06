@@ -18,8 +18,8 @@ def preprocess_california_housing(T_col: str = 'HouseAge', y_col: str = 'MedHous
     y_col : str
         String corresponding to column of target variable
 
-    Return
-    ------
+    Returns
+    -------
     X_train : list[float]
         List containing control training data.
     X_test : list[float]
@@ -66,8 +66,8 @@ def preprocess(file: str, T_col: str, y_col: str
     y_col : str
         String corresponding to column of target variable.
 
-    Return
-    ------
+    Returns
+    -------
     X_train : list[float]
         List containing control training data.
     X_test : list[float]
