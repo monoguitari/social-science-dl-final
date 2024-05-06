@@ -10,132 +10,7 @@ from sklearn.linear_model import Lasso
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
-
-"""
-List defining configurations for experiments.
-
-Variables
----------
-model_treatment : sklearn.pipeline.Pipeline | tf.keras.models
-    Machine learning model for predicting treatment.
-is_model_treatment_dl : bool
-    If True, treatment model is a TensorFlow deep learning model.
-    If False, scikit-learn model.
-model_outcome : sklearn.pipeline.Pipeline | tf.keras.models
-    Machine learning model for predicting outcome.
-is_model_outcome_dl : bool
-    If True, outcome model is a TensorFlow deep learning model.
-    If False, scikit-learn model.
-model_effect: sklearn.pipeline.Pipeline | tf.keras.models, default=LinearRegression()
-    Machine learning model for predicting effect.
-is_model_effect_dl : bool, default=False
-    If True, effect model is a TensorFlow deep learning model.
-    If False, scikit-learn model.
-lime_explainer : bool, default=False
-    If True, use Lime Explainer.
-"""
-EXPERIMENTS = [
-    {
-        'name': 'non-DL treatment (Lasso) + non-DL outcome (Lasso)',
-        'task': 'regression',
-        'config': {
-            'model_treatment': Lasso(),
-            'is_model_treatment_dl': False,
-            'model_outcome': Lasso(),
-            'is_model_outcome_dl': False,
-            'model_effect': LinearRegression(),
-            'is_model_effect_dl': False,
-            'lime_explainer': False
-        }
-    }, {
-        'name': 'non-DL treatment (Lasso) + DL outcome (NN)',
-        'task': 'regression',
-        'config': {
-            'model_treatment': Lasso(),
-            'is_model_treatment_dl': False,
-            'model_outcome': Sequential([
-                    Dense(128, activation='relu'),
-                    Dense(128, activation='relu'),
-                    Dense(1)  # Output layer for regression
-                ]),
-            'is_model_outcome_dl': True
-        }
-    }, {
-        'name': 'DL treatment (NN) + non-DL outcome (Lasso)',
-        'task': 'regression',
-        'config': {
-            'model_treatment': Sequential([
-                    Dense(128, activation='relu'),
-                    Dense(128, activation='relu'),
-                    Dense(1)  # Output layer for regression
-                ]),
-            'is_model_treatment_dl': True,
-            'model_outcome': Lasso(),
-            'is_model_outcome_dl': False
-        }
-    }, {
-        'name': 'DL treatment (NN) + DL outcome (NN)',
-        'task': 'regression',
-        'config': {
-            'model_treatment': Sequential([
-                    Dense(128, activation='relu'),
-                    Dense(128, activation='relu'),
-                    Dense(1)  # Output layer for regression
-                ]),
-            'is_model_treatment_dl': True,
-            'model_outcome': Sequential([
-                    Dense(128, activation='relu'),
-                    Dense(128, activation='relu'),
-                    Dense(1)  # Output layer for regression
-                ]),
-            'is_model_outcome_dl': True
-        }   
-    }, {
-        'name': 'DL treatment (NN) + DL outcome (NN) + DL effect (NN) + lime explainer',
-        'task': 'regression',
-        'config': {
-            'model_treatment': Sequential([
-                    Dense(128, activation='relu'),
-                    Dense(128, activation='relu'),
-                    Dense(1)  # Output layer for regression
-                ]),
-            'is_model_treatment_dl': True,
-            'model_outcome': Sequential([
-                    Dense(128, activation='relu'),
-                    Dense(128, activation='relu'),
-                    Dense(1)  # Output layer for regression
-                ]),
-            'is_model_outcome_dl': True,
-            'model_effect': Sequential([
-                    Dense(64, activation='relu'),
-                    Dense(64, activation='relu'),
-                    Dense(1)  # Output layer for regression
-                ]),
-            'is_model_effect_dl': True,
-            'lime_explainer': True
-        }
-    }, {
-        'name': 'non-DL treatment (LR) + non-DL outcome (LR)',
-        'task': 'regression',
-        'config': {
-            'model_treatment': LinearRegression(),
-            'is_model_treatment_dl': False,
-            'model_outcome': LinearRegression(),
-            'is_model_outcome_dl': False
-        }
-        
-    }, {
-        'name': 'non-DL treatment (RF) + non-DL outcome (RF)',
-        'task': 'regression',
-        'config': {
-            'model_treatment': RandomForestRegressor(),
-            'is_model_treatment_dl': False,
-            'model_outcome': RandomForestRegressor(),
-            'is_model_outcome_dl': False
-        }
-    }
-]
+from tensorflow.keras.layers import Dense, Dropout
 
 def test_dataset(
     X_train: list[float],
@@ -174,8 +49,148 @@ def test_dataset(
 
     results = []
 
+    # List defining configurations for experiments.
+    # Variables
+    # ---------
+    # model_treatment : sklearn.pipeline.Pipeline | tf.keras.models
+    #     Machine learning model for predicting treatment.
+    # is_model_treatment_dl : bool
+    #     If True, treatment model is a TensorFlow deep learning model.
+    #     If False, scikit-learn model.
+    # model_outcome : sklearn.pipeline.Pipeline | tf.keras.models
+    #     Machine learning model for predicting outcome.
+    # is_model_outcome_dl : bool
+    #     If True, outcome model is a TensorFlow deep learning model.
+    #     If False, scikit-learn model.
+    # model_effect: sklearn.pipeline.Pipeline | tf.keras.models, default=LinearRegression()
+    #     Machine learning model for predicting effect.
+    # is_model_effect_dl : bool, default=False
+    #     If True, effect model is a TensorFlow deep learning model.
+    #     If False, scikit-learn model.
+    # lime_explainer : bool, default=False
+    #     If True, use Lime Explainer.
+    EXPERIMENTS = [
+        {
+            'name': 'non-DL treatment (Lasso) + non-DL outcome (Lasso)',
+            'task': 'regression',
+            'config': {
+                'model_treatment': Lasso(),
+                'is_model_treatment_dl': False,
+                'model_outcome': Lasso(),
+                'is_model_outcome_dl': False,
+                'model_effect': LinearRegression(),
+                'is_model_effect_dl': False,
+                'lime_explainer': False
+            }
+        }, {
+            'name': 'non-DL treatment (Lasso) + DL outcome (NN)',
+            'task': 'regression',
+            'config': {
+                'model_treatment': Lasso(),
+                'is_model_treatment_dl': False,
+                'model_outcome': Sequential([
+                        Dense(128, activation='relu'),
+                        Dense(128, activation='relu'),
+                        Dense(1)  # Output layer for regression
+                    ]),
+                'is_model_outcome_dl': True
+            }
+        }, {
+            'name': 'DL treatment (NN) + non-DL outcome (Lasso)',
+            'task': 'regression',
+            'config': {
+                'model_treatment': Sequential([
+                        Dense(128, activation='relu'),
+                        Dense(128, activation='relu'),
+                        Dense(1)  # Output layer for regression
+                    ]),
+                'is_model_treatment_dl': True,
+                'model_outcome': Lasso(),
+                'is_model_outcome_dl': False
+            }
+        }, {
+            'name': 'DL treatment (NN) + DL outcome (NN)',
+            'task': 'regression',
+            'config': {
+                'model_treatment': Sequential([
+                        Dense(128, activation='relu'),
+                        Dense(128, activation='relu'),
+                        Dense(1)  # Output layer for regression
+                    ]),
+                'is_model_treatment_dl': True,
+                'model_outcome': Sequential([
+                        Dense(128, activation='relu'),
+                        Dense(128, activation='relu'),
+                        Dense(1)  # Output layer for regression
+                    ]),
+                'is_model_outcome_dl': True
+            }   
+        }, {
+            'name': 'DL treatment (Mod. NN) + DL outcome (Mod. NN)',
+            'task': 'regression',
+            'config': {
+                'model_treatment': Sequential([
+                        Dense(128, activation='relu'),
+                        Dense(128, activation='sigmoid'),
+                        Dense(1)  # Output layer for regression
+                    ]),
+                'is_model_treatment_dl': True,
+                'model_outcome': Sequential([
+                        Dense(128, activation='relu'),
+                        Dense(128, activation='sigmoid'),
+                        Dense(1)  # Output layer for regression
+                    ]),
+                'is_model_outcome_dl': True
+            }   
+        }, {
+            'name': 'DL treatment (NN) + DL outcome (NN) + DL effect (NN) + lime explainer',
+            'task': 'regression',
+            'config': {
+                'model_treatment': Sequential([
+                        Dense(128, activation='relu'),
+                        Dense(128, activation='relu'),
+                        Dense(1)  # Output layer for regression
+                    ]),
+                'is_model_treatment_dl': True,
+                'model_outcome': Sequential([
+                        Dense(128, activation='relu'),
+                        Dense(128, activation='relu'),
+                        Dense(1)  # Output layer for regression
+                    ]),
+                'is_model_outcome_dl': True,
+                'model_effect': Sequential([
+                        Dense(64, activation='relu'),
+                        Dense(64, activation='relu'),
+                        Dense(1)  # Output layer for regression
+                    ]),
+                'is_model_effect_dl': True,
+                'lime_explainer': True
+            }
+        }, {
+            'name': 'non-DL treatment (LR) + non-DL outcome (LR)',
+            'task': 'regression',
+            'config': {
+                'model_treatment': LinearRegression(),
+                'is_model_treatment_dl': False,
+                'model_outcome': LinearRegression(),
+                'is_model_outcome_dl': False
+            }
+            
+        }, {
+            'name': 'non-DL treatment (RF) + non-DL outcome (RF)',
+            'task': 'regression',
+            'config': {
+                'model_treatment': RandomForestRegressor(),
+                'is_model_treatment_dl': False,
+                'model_outcome': RandomForestRegressor(),
+                'is_model_outcome_dl': False
+            }
+        }
+    ]
+
     # Conduct each experiment and append results to results array
     for experiment in EXPERIMENTS:
+        print('Conducting Experiment ', experiment['name'])
         effect_ceof, mse = double_ml_regression(X_train, X_test, T_train, T_test, y_train, y_test, **experiment['config'])
         results.append([experiment['name'], effect_ceof, mse])
     
@@ -186,10 +201,10 @@ def test_dataset(
     return
 
 def main():
-    # Run DoubleML experiments on California Housing data
-    print('Analyzing California Housing data...')
-    X_train, X_test, T_train, T_test, y_train, y_test = preprocess_california_housing()
-    test_dataset(X_train, X_test, T_train, T_test, y_train, y_test)
+    # # Run DoubleML experiments on California Housing data
+    # print('Analyzing California Housing data...')
+    # X_train, X_test, T_train, T_test, y_train, y_test = preprocess_california_housing()
+    # test_dataset(X_train, X_test, T_train, T_test, y_train, y_test)
 
     # Run DoubleML experiments on Communities and Crime data
     print('Analyzing Communities and Crime data...')
